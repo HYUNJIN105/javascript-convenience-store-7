@@ -17,9 +17,13 @@ class App {
   }
 
   async run() {
-    await this.welcome();
-    await this.show();
-    await this.start();
+    try {
+      await this.welcome();
+      await this.show();
+      await this.start();
+    } catch (error) {
+      await this.error(error);
+    }
   }
 
   async start() {
@@ -40,7 +44,7 @@ class App {
   async processOrder() {
     const orderInputs = await InputView.read();
     const orders = this.createOrders(orderInputs);
-    await this.#orderManager.add(orders);
+    await this.#orderManager.process(orders);
   }
 
   createOrders(orderInputs) {

@@ -3,7 +3,7 @@ import { Console } from '@woowacourse/mission-utils';
 class InputView {
   static async read() {
     const input = await Console.readLineAsync(
-      '구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])\n'
+      '\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])\n'
     );
     return this.parse(input);
   }
@@ -12,7 +12,7 @@ class InputView {
     while (true) {
       try {
         const input = await Console.readLineAsync(
-          `현재 ${productName}은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`
+          `\n현재 ${productName}은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`
         );
         return this.parseAnswer(input);
       } catch (error) {
@@ -34,12 +34,33 @@ class InputView {
     }
   }
 
+  static async readMembershipDiscount() {
+    while (true) {
+      try {
+        const input = await Console.readLineAsync(
+          '\n멤버십 할인을 받으시겠습니까? (Y/N)\n'
+        );
+        return this.parseAnswer(input);
+      } catch (error) {
+        await Console.print(error.message);
+      }
+    }
+  }
+
   static parseAnswer(input) {
     const answer = input.trim().toUpperCase();
     if (answer !== 'Y' && answer !== 'N') {
       throw new Error('[ERROR] Y 또는 N으로 입력해 주세요.');
     }
     return answer === 'Y';
+  }
+
+  static parseMembership(input) {
+    const grade = input.trim();
+    if (!['1', '2'].includes(grade)) {
+      throw new Error('[ERROR] 유효하지 않은 멤버십 등급입니다.');
+    }
+    return grade === '2' ? 'VIP' : '일반';
   }
 
   static parse(input) {
