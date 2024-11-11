@@ -131,65 +131,61 @@ class OrderManager {
     return discount;
   }
 
-  calculateMembershipDiscount(useMembership) {
-    if (!useMembership) return 0;
+  calculateMembershipDiscount(amount) {
+    if (!this.useMembership) return 0;
 
-    const DISCOUNT_RATE = 0.3;  // 30% 할인
-    const MAX_DISCOUNT = 8000;  // 최대 8,000원 할인
+    const DISCOUNT_RATE = 0.3;
+    const MAX_DISCOUNT = 8000;
     
-    // 프로모션이 적용되지 않은 상품의 총 금액 계산
-    let nonPromoTotal = 0;
-    this.#orders.forEach((order, name) => {
-      if (!this.#promotionManager.hasActive(name)) {
-        const product = this.#productManager.find(name);
-        nonPromoTotal += product.price() * order.quantity();
-      }
-    });
-
-    // 멤버십 할인 계산 (최대 8,000원)
-    const discount = Math.floor(nonPromoTotal * DISCOUNT_RATE);
+    const discount = Math.floor(amount * DISCOUNT_RATE);
     return Math.min(discount, MAX_DISCOUNT);
   }
 
-  getOrderSummary(useMembership = false) {
+  calculateFinalPrice() {
     const summary = {
-      orders: [],
-      freeItems: [],
-      totalPrice: 0,
-      promoDiscount: 0,
-      membershipDiscount: 0,
-      finalPrice: 0
+      subtotal: 0,          // 할인 전 금액
+      promoDiscount: 0,     // 프로모션 할인
+      membershipDiscount: 0, // 멤버십 할인
+      total: 0              // 최종 금액
     };
 
-    // 주문 정보 수집
+
     this.#orders.forEach((order, name) => {
       const product = this.#productManager.find(name);
-      const price = product.price() * order.quantity();
-      
-      summary.orders.push({
-        name,
-        quantity: order.quantity(),
-        price
-      });
-
-      if (order.free) {
-        summary.freeItems.push({
-          name,
-          quantity: order.free
-        });
-      }
-
-      summary.totalPrice += price;
+      summary.subtotal += product.price() * order.quantity();
     });
 
-    // 할인 계산
+
     summary.promoDiscount = this.calculatePromoDiscount();
-    summary.membershipDiscount = this.calculateMembershipDiscount(useMembership);
-    
-    // 최종 금액 계산
-    summary.finalPrice = summary.totalPrice - summary.promoDiscount - summary.membershipDiscount;
+
+    const nonPromoAmount = summary.subtotal - summary.promoDiscount;
+    summary.membershipDiscount = this.calculateMembershipDiscount(nonPromoAmount);
+
+
+    summary.total = summary.subtotal - summary.promoDiscount - summary.membershipDiscount;
 
     return summary;
+  }
+
+  setMembershipUse(use) {
+    this.useMembership = use;
+  }
+
+  getOrderDetails() {
+    return {
+      items: this.#orders.map((order, name) => ({
+        name,
+        quantity: order.quantity(),
+        price: this.#productManager.find(name).price() * order.quantity()
+      })),
+      freeItems: Array.from(this.#orders.entries())
+        .filter(([_, order]) => order.free)
+        .map(([name, order]) => ({
+          name,
+          quantity: order.free
+        })),
+      pricing: this.calculateFinalPrice()
+    };
   }
 } 
 
