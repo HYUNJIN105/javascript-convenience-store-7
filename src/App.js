@@ -47,8 +47,11 @@ class App {
     const orders = this.createOrders(orderInputs);
     await this.#orderManager.process(orders);
     
-    const promoDiscount = this.#orderManager.calculatePromoDiscount();
-    await OutputView.printPromoDiscount(promoDiscount);
+    const useMembership = await InputView.readMembershipDiscount();
+    this.#orderManager.setMembershipUse(useMembership);
+    
+    const orderDetails = this.#orderManager.getOrderDetails();
+    await OutputView.printReceipt(orderDetails);
   }
 
   createOrders(orderInputs) {

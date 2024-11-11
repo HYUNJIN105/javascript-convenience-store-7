@@ -120,20 +120,16 @@ class OrderManager {
 
   calculatePromoDiscount() {
     let discount = 0;
-    
     this.#orders.forEach((order, name) => {
       if (order.free) {
         const product = this.#productManager.find(name);
         discount += product.price() * order.free;
       }
     });
-
     return discount;
   }
 
   calculateMembershipDiscount(amount) {
-    if (!this.useMembership) return 0;
-
     const DISCOUNT_RATE = 0.3;
     const MAX_DISCOUNT = 8000;
     
@@ -143,25 +139,19 @@ class OrderManager {
 
   calculateFinalPrice() {
     const summary = {
-      subtotal: 0,          // 할인 전 금액
-      promoDiscount: 0,     // 프로모션 할인
-      membershipDiscount: 0, // 멤버십 할인
-      total: 0              // 최종 금액
+      subtotal: 0,
+      promoDiscount: 0,
+      membershipDiscount: 0,
+      total: 0
     };
-
 
     this.#orders.forEach((order, name) => {
       const product = this.#productManager.find(name);
-      summary.subtotal += product.price() * order.quantity();
+      summary.subtotal += product.price() * order.quantity;
     });
 
-
     summary.promoDiscount = this.calculatePromoDiscount();
-
-    const nonPromoAmount = summary.subtotal - summary.promoDiscount;
-    summary.membershipDiscount = this.calculateMembershipDiscount(nonPromoAmount);
-
-
+    summary.membershipDiscount = this.calculateMembershipDiscount(summary.subtotal - summary.promoDiscount);
     summary.total = summary.subtotal - summary.promoDiscount - summary.membershipDiscount;
 
     return summary;
@@ -172,19 +162,39 @@ class OrderManager {
   }
 
   getOrderDetails() {
-    return {
-      items: this.#orders.map((order, name) => ({
+    const items = Array.from(this.#orders.entries()).map(([name, order]) => {
+      const product = this.#productManager.find(name);
+      return {
         name,
-        quantity: order.quantity(),
-        price: this.#productManager.find(name).price() * order.quantity()
-      })),
-      freeItems: Array.from(this.#orders.entries())
-        .filter(([_, order]) => order.free)
-        .map(([name, order]) => ({
-          name,
-          quantity: order.free
-        })),
-      pricing: this.calculateFinalPrice()
+        quantity: order.quantity,
+        price: product.price() * order.quantity
+      };
+    });
+
+    const freeItems = Array.from(this.#orders.entries())
+      .filter(([_, order]) => order.free)
+      .map(([name, order]) => ({
+        name,
+        quantity: order.free
+      }));
+
+    const pricing = {
+      subtotal: items.reduce((sum, item) => sum + item.price, 0),
+      promoDiscount: this.calculatePromoDiscount(),
+      membershipDiscount: 0,
+      total: 0
+    };
+
+    if (this.useMembership) {
+      pricing.membershipDiscount = this.calculateMembershipDiscount(pricing.subtotal - pricing.promoDiscount);
+    }
+
+    pricing.total = pricing.subtotal - pricing.promoDiscount - pricing.membershipDiscount;
+
+    return {
+      items,
+      freeItems,
+      pricing
     };
   }
 } 
