@@ -14,12 +14,23 @@ class App {
   }
 
   async run() {
-    try {
-      await this.welcome();
-      await this.show();
-      await this.processOrder();
-    } catch (error) {
-      await this.error(error);
+    await this.welcome();
+    await this.show();
+    await this.start();
+  }
+
+  async start() {
+    await this.retry(() => this.processOrder());
+  }
+
+  async retry(callback) {
+    while (true) {
+      try {
+        await callback();
+        break;
+      } catch (error) {
+        await this.error(error);
+      }
     }
   }
 
