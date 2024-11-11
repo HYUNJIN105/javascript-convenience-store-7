@@ -3,14 +3,17 @@ import ProductManager from './models/ProductManager.js';
 import PromotionManager from './models/PromotionManager.js';
 import InputView from './views/InputView.js';
 import Order from './models/Order.js';
+import OrderManager from './models/OrderManager.js';
 
 class App {
   #productManager;
   #promotionManager;
+  #orderManager;
 
   constructor() {
     this.#productManager = new ProductManager();
-    this.#promotionManager = new PromotionManager();
+    this.#promotionManager = new PromotionManager(this.#productManager);
+    this.#orderManager = new OrderManager(this.#productManager, this.#promotionManager);
   }
 
   async run() {
@@ -37,22 +40,13 @@ class App {
   async processOrder() {
     const orderInputs = await InputView.read();
     const orders = this.createOrders(orderInputs);
-    this.validateOrders(orders);
+    await this.#orderManager.add(orders);
   }
 
   createOrders(orderInputs) {
     return orderInputs.map(({ name, quantity }) => 
       new Order(name, quantity)
     );
-  }
-
-  validateOrders(orders) {
-    orders.forEach(order => {
-      const product = this.#productManager.find(order.name());
-      if (order.quantity() > product.quantity()) {
-        throw new Error('[ERROR] 재고 수량을 초과하여 구매할 수 없습니다.');
-      }
-    });
   }
 
   async welcome() {

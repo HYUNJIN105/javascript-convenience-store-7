@@ -36,13 +36,8 @@ class Promotion {
   calculateFree(quantity) {
     if (!this.isActive()) return 0;
     
-    if (this.#type === '1+1') {
-      return Math.floor(quantity / 2);
-    }
-    if (this.#type === '2+1') {
-      return Math.floor(quantity / 3);
-    }
-    return 0;
+    const [buy, get] = this.#type.split('+').map(Number);
+    return Math.floor(quantity / buy) * get;
   }
 }
 

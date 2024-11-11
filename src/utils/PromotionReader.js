@@ -17,8 +17,13 @@ class PromotionReader {
       .slice(1);
     
     return filteredLines.map(line => {
-      const [name, type, startDate, endDate] = line.split(',').map(item => item.trim());
-      return { name, type, startDate, endDate };
+      const [name, buy, get, startDate, endDate] = line.split(',').map(item => item.trim());
+      return { 
+        name, 
+        type: `${buy}+${get}`,
+        startDate, 
+        endDate 
+      };
     });
   }
 }

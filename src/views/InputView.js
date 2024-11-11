@@ -8,6 +8,40 @@ class InputView {
     return this.parse(input);
   }
 
+  static async readPromo(productName) {
+    while (true) {
+      try {
+        const input = await Console.readLineAsync(
+          `현재 ${productName}은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`
+        );
+        return this.parseAnswer(input);
+      } catch (error) {
+        await Console.print(error.message);
+      }
+    }
+  }
+
+  static async readPrice(productName, quantity) {
+    while (true) {
+      try {
+        const input = await Console.readLineAsync(
+          `현재 ${productName} ${quantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`
+        );
+        return this.parseAnswer(input);
+      } catch (error) {
+        await Console.print(error.message);
+      }
+    }
+  }
+
+  static parseAnswer(input) {
+    const answer = input.trim().toUpperCase();
+    if (answer !== 'Y' && answer !== 'N') {
+      throw new Error('[ERROR] Y 또는 N으로 입력해 주세요.');
+    }
+    return answer === 'Y';
+  }
+
   static parse(input) {
     this.validate(input);
     return this.split(input);

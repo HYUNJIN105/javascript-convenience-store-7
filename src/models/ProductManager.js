@@ -32,6 +32,11 @@ class ProductManager {
     }
     return product;
   }
+
+  findPromotion(name) {
+    const product = this.find(name);
+    return product.promotion();
+  }
 }
 
 export default ProductManager; 

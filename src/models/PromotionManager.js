@@ -3,9 +3,11 @@ import Promotion from './Promotion.js';
 
 class PromotionManager {
   #promotions;
+  #productManager;
 
-  constructor() {
+  constructor(productManager) {
     this.#promotions = new Map();
+    this.#productManager = productManager;
     this.init();
   }
 
@@ -20,7 +22,8 @@ class PromotionManager {
   }
 
   get(productName) {
-    return this.#promotions.get(productName);
+    const promotionName = this.#productManager.findPromotion(productName);
+    return promotionName ? this.#promotions.get(promotionName) : null;
   }
 
   hasActive(productName) {
