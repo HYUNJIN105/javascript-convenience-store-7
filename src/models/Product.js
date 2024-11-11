@@ -44,11 +44,18 @@ class Product {
     return this.#quantity > 0;
   }
 
+  decreaseStock(amount) {
+    if (amount > this.#quantity) {
+      throw new Error('[ERROR] 재고가 부족합니다.');
+    }
+    this.#quantity -= amount;
+  }
+
   toString() {
     const stockInfo = this.hasStock() ? `${this.#quantity}개` : '재고 없음';
     const promotionInfo = this.#promotion ? ` ${this.#promotion}` : '';
     
-    return `- ${this.#name} ${this.#price}원 ${stockInfo}${promotionInfo}`;
+    return `- ${this.#name} ${this.#price.toLocaleString()}원 ${stockInfo}${promotionInfo}`;
   }
 }
 
