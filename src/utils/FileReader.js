@@ -13,8 +13,8 @@ class FileReader {
   static parseContent(content) {
     const lines = content.split('\n');
     const filteredLines = lines
-      .filter(line => line.trim())  // 빈 줄 제거
-      .slice(1);  // 헤더 줄 제거
+      .filter(line => line.trim())
+      .slice(1);
     
     return filteredLines.map(line => {
       return line.split(',').map(item => item.trim());
