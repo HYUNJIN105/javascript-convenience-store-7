@@ -131,14 +131,37 @@ class OrderManager {
     return discount;
   }
 
-  getOrderSummary() {
+  calculateMembershipDiscount(useMembership) {
+    if (!useMembership) return 0;
+
+    const DISCOUNT_RATE = 0.3;  // 30% 할인
+    const MAX_DISCOUNT = 8000;  // 최대 8,000원 할인
+    
+    // 프로모션이 적용되지 않은 상품의 총 금액 계산
+    let nonPromoTotal = 0;
+    this.#orders.forEach((order, name) => {
+      if (!this.#promotionManager.hasActive(name)) {
+        const product = this.#productManager.find(name);
+        nonPromoTotal += product.price() * order.quantity();
+      }
+    });
+
+    // 멤버십 할인 계산 (최대 8,000원)
+    const discount = Math.floor(nonPromoTotal * DISCOUNT_RATE);
+    return Math.min(discount, MAX_DISCOUNT);
+  }
+
+  getOrderSummary(useMembership = false) {
     const summary = {
       orders: [],
       freeItems: [],
       totalPrice: 0,
-      promoDiscount: 0
+      promoDiscount: 0,
+      membershipDiscount: 0,
+      finalPrice: 0
     };
 
+    // 주문 정보 수집
     this.#orders.forEach((order, name) => {
       const product = this.#productManager.find(name);
       const price = product.price() * order.quantity();
@@ -159,7 +182,12 @@ class OrderManager {
       summary.totalPrice += price;
     });
 
+    // 할인 계산
     summary.promoDiscount = this.calculatePromoDiscount();
+    summary.membershipDiscount = this.calculateMembershipDiscount(useMembership);
+    
+    // 최종 금액 계산
+    summary.finalPrice = summary.totalPrice - summary.promoDiscount - summary.membershipDiscount;
 
     return summary;
   }
