@@ -13,27 +13,27 @@ class App {
 
   async run() {
     try {
-      await this.displayWelcomeMessage();
-      await this.displayProducts();
+      await this.welcome();
+      await this.show();
     } catch (error) {
-      await this.handleError(error);
+      await this.error(error);
     }
   }
 
-  async displayWelcomeMessage() {
+  async welcome() {
     await Console.print('안녕하세요. W편의점입니다.');
     await Console.print('현재 보유하고 있는 상품입니다.\n');
   }
 
-  async displayProducts() {
-    const products = this.#productManager.getProducts();
+  async show() {
+    const products = this.#productManager.list();
     for (const product of products) {
-      const hasPromotion = this.#promotionManager.hasActive(product.getName());
-      await Console.print(product.toString(hasPromotion));
+      const hasPromo = this.#promotionManager.hasActive(product.name());
+      await Console.print(product.toString(hasPromo));
     }
   }
 
-  async handleError(error) {
+  async error(error) {
     await Console.print(error.message);
   }
 }

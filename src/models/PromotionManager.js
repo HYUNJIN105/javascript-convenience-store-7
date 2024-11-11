@@ -6,11 +6,11 @@ class PromotionManager {
 
   constructor() {
     this.#promotions = new Map();
-    this.initializePromotions();
+    this.init();
   }
 
-  initializePromotions() {
-    const rawPromotions = PromotionReader.readPromotionsFile();
+  init() {
+    const rawPromotions = PromotionReader.read();
     rawPromotions.forEach(({ name, type, startDate, endDate }) => {
       this.#promotions.set(
         name,
@@ -19,18 +19,18 @@ class PromotionManager {
     });
   }
 
-  getPromotion(productName) {
+  get(productName) {
     return this.#promotions.get(productName);
   }
 
   hasActive(productName) {
-    const promotion = this.getPromotion(productName);
+    const promotion = this.get(productName);
     return promotion ? promotion.isActive() : false;
   }
 
   calculateFree(productName, quantity) {
-    const promotion = this.getPromotion(productName);
-    return promotion ? promotion.getFreeQuantity(quantity) : 0;
+    const promotion = this.get(productName);
+    return promotion ? promotion.calculateFree(quantity) : 0;
   }
 }
 

@@ -6,11 +6,11 @@ class ProductManager {
 
   constructor() {
     this.#products = [];
-    this.initializeProducts();
+    this.init();
   }
 
-  initializeProducts() {
-    const rawProducts = ProductReader.readProductsFile();
+  init() {
+    const rawProducts = ProductReader.read();
     this.#products = rawProducts.map(({ name, price, quantity, promotion }) => 
       new Product(
         name,
@@ -21,12 +21,12 @@ class ProductManager {
     );
   }
 
-  getProducts() {
+  list() {
     return [...this.#products];
   }
 
-  findProduct(name) {
-    const product = this.#products.find(product => product.getName() === name);
+  find(name) {
+    const product = this.#products.find(product => product.name() === name);
     if (!product) {
       throw new Error('[ERROR] 존재하지 않는 상품입니다.');
     }

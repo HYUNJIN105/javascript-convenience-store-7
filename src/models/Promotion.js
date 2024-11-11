@@ -6,13 +6,13 @@ class Promotion {
   #endDate;
 
   constructor(type, startDate, endDate) {
-    this.validateDates(startDate, endDate);
+    this.validate(startDate, endDate);
     this.#type = type;
     this.#startDate = new Date(startDate);
     this.#endDate = new Date(endDate);
   }
 
-  validateDates(startDate, endDate) {
+  validate(startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     
@@ -29,18 +29,18 @@ class Promotion {
     return currentDate >= this.#startDate && currentDate <= this.#endDate;
   }
 
-  getType() {
+  type() {
     return this.#type;
   }
 
-  getFreeQuantity(purchaseQuantity) {
+  calculateFree(quantity) {
     if (!this.isActive()) return 0;
     
     if (this.#type === '1+1') {
-      return Math.floor(purchaseQuantity / 2);
+      return Math.floor(quantity / 2);
     }
     if (this.#type === '2+1') {
-      return Math.floor(purchaseQuantity / 3);
+      return Math.floor(quantity / 3);
     }
     return 0;
   }

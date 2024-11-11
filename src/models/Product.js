@@ -5,14 +5,14 @@ class Product {
   #promotion;
 
   constructor(name, price, quantity, promotion) {
-    this.validateProduct(name, price, quantity);
+    this.validate(name, price, quantity);
     this.#name = name;
     this.#price = price;
     this.#quantity = quantity;
     this.#promotion = promotion;
   }
 
-  validateProduct(name, price, quantity) {
+  validate(name, price, quantity) {
     if (!name || typeof name !== 'string') {
       throw new Error('[ERROR] 상품명이 올바르지 않습니다.');
     }
@@ -24,19 +24,19 @@ class Product {
     }
   }
 
-  getName() {
+  name() {
     return this.#name;
   }
 
-  getPrice() {
+  price() {
     return this.#price;
   }
 
-  getQuantity() {
+  quantity() {
     return this.#quantity;
   }
 
-  getPromotion() {
+  promotion() {
     return this.#promotion;
   }
 
