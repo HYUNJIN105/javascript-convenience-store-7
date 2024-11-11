@@ -23,13 +23,13 @@ class OrderManager {
 
   async processOrder(order) {
     const product = this.#productManager.find(order.name());
-    this.validateStock(order, product);
     
     if (this.#promotionManager.hasActive(order.name())) {
       await this.processPromo(order, product);
     } else {
-      this.#orders.set(order.name(), order);
+      this.validateStock(order, product);
       product.decreaseStock(order.quantity());
+      this.#orders.set(order.name(), order);
     }
   }
 
@@ -86,11 +86,7 @@ class OrderManager {
   }
 
   validateStock(order, product) {
-    const quantity = order.quantity();
-    const freeCount = this.#promotionManager.calculateFree(order.name(), quantity);
-    const totalQuantity = quantity + (freeCount || 0);
-
-    if (totalQuantity > product.quantity()) {
+    if (!product.canDecrease(order.quantity())) {
       throw new Error('[ERROR] 재고가 부족합니다.');
     }
   }

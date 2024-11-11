@@ -45,10 +45,14 @@ class Product {
   }
 
   decreaseStock(amount) {
-    if (amount > this.#quantity) {
+    if (!this.canDecrease(amount)) {
       throw new Error('[ERROR] 재고가 부족합니다.');
     }
     this.#quantity -= amount;
+  }
+
+  canDecrease(amount) {
+    return this.#quantity >= amount;
   }
 
   toString() {
