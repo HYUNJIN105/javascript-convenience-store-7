@@ -64,25 +64,52 @@ class OrderManager {
     const freeCount = this.#promotionManager.calculateFree(order.name(), order.quantity());
     
     if (freeCount > 0) {
-      const totalQuantity = order.quantity() + freeCount;
-      const hasStock = product.quantity() >= totalQuantity;
-      
-      if (hasStock && await InputView.readPromo(order.name())) {
-        this.#orders.set(order.name(), {
+      await this.promoStock(order, product, freeCount);
+    } else {
+      await this.stock(order, product);
+    }
+  }
+
+  async promoStock(order, product, freeCount) {
+    const total = order.quantity() + freeCount;
+
+    if (product.canDecrease(total)) {
+      if (await InputView.readPromo(order.name())) {
+        product.decreaseStock(total);
+        this.add(order.name(), {
           ...order,
           free: freeCount
         });
-        product.decreaseStock(totalQuantity);
+        return;
+      }
+    }
+    
+    if (product.canDecrease(order.quantity())) {
+      if (await InputView.readPrice(order.name(), order.quantity())) {
+        product.decreaseStock(order.quantity());
+        this.add(order.name(), order);
         return;
       }
     }
 
+    throw new Error('[ERROR] 재고가 부족합니다.');
+  }
+
+  async stock(order, product) {
+    if (!product.canDecrease(order.quantity())) {
+      throw new Error('[ERROR] 재고가 부족합니다.');
+    }
+
     if (await InputView.readPrice(order.name(), order.quantity())) {
-      this.#orders.set(order.name(), order);
       product.decreaseStock(order.quantity());
+      this.add(order.name(), order);
     } else {
       throw new Error('[ERROR] 주문이 취소되었습니다.');
     }
+  }
+
+  add(name, order) {
+    this.#orders.set(name, order);
   }
 
   validateStock(order, product) {
