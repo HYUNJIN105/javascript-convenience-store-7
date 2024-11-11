@@ -1,11 +1,14 @@
 import { Console } from '@woowacourse/mission-utils';
 import ProductManager from './models/ProductManager.js';
+import PromotionManager from './models/PromotionManager.js';
 
 class App {
   #productManager;
+  #promotionManager;
 
   constructor() {
     this.#productManager = new ProductManager();
+    this.#promotionManager = new PromotionManager();
   }
 
   async run() {
@@ -25,7 +28,8 @@ class App {
   async displayProducts() {
     const products = this.#productManager.getProducts();
     for (const product of products) {
-      await Console.print(product.toString());
+      const hasPromotion = this.#promotionManager.hasActive(product.getName());
+      await Console.print(product.toString(hasPromotion));
     }
   }
 
