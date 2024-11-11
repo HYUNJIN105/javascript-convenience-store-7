@@ -4,6 +4,7 @@ import PromotionManager from './models/PromotionManager.js';
 import InputView from './views/InputView.js';
 import Order from './models/Order.js';
 import OrderManager from './models/OrderManager.js';
+import OutputView from './views/OutputView.js';
 
 class App {
   #productManager;
@@ -45,6 +46,9 @@ class App {
     const orderInputs = await InputView.read();
     const orders = this.createOrders(orderInputs);
     await this.#orderManager.process(orders);
+    
+    const promoDiscount = this.#orderManager.calculatePromoDiscount();
+    await OutputView.printPromoDiscount(promoDiscount);
   }
 
   createOrders(orderInputs) {

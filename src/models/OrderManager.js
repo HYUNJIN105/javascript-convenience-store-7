@@ -118,8 +118,50 @@ class OrderManager {
     }
   }
 
-  getOrders() {
-    return Array.from(this.#orders.values());
+  calculatePromoDiscount() {
+    let discount = 0;
+    
+    this.#orders.forEach((order, name) => {
+      if (order.free) {
+        const product = this.#productManager.find(name);
+        discount += product.price() * order.free;
+      }
+    });
+
+    return discount;
+  }
+
+  getOrderSummary() {
+    const summary = {
+      orders: [],
+      freeItems: [],
+      totalPrice: 0,
+      promoDiscount: 0
+    };
+
+    this.#orders.forEach((order, name) => {
+      const product = this.#productManager.find(name);
+      const price = product.price() * order.quantity();
+      
+      summary.orders.push({
+        name,
+        quantity: order.quantity(),
+        price
+      });
+
+      if (order.free) {
+        summary.freeItems.push({
+          name,
+          quantity: order.free
+        });
+      }
+
+      summary.totalPrice += price;
+    });
+
+    summary.promoDiscount = this.calculatePromoDiscount();
+
+    return summary;
   }
 } 
 
