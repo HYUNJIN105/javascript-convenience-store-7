@@ -1,11 +1,13 @@
-class Order {
+export default class Order {
   #name;
   #quantity;
+  #price;
 
-  constructor(name, quantity) {
+  constructor(name, quantity, price = 0) {
     this.validate(name, quantity);
     this.#name = name;
     this.#quantity = quantity;
+    this.#price = price;
   }
 
   validate(name, quantity) {
@@ -24,6 +26,12 @@ class Order {
   quantity() {
     return this.#quantity;
   }
-}
 
-export default Order; 
+  price() {
+    return this.#price;
+  }
+
+  setPrice(price) {
+    this.#price = price;
+  }
+} 

@@ -37,6 +37,30 @@ class ProductManager {
     const product = this.find(name);
     return product.promotion();
   }
+
+  findAllByName(name) {
+    return this.#products.filter(product => product.name() === name);
+  }
+
+  getTotalAvailableQuantity(name) {
+    const products = this.findAllByName(name);
+    if (!products.length) {
+      throw new Error('[ERROR] 존재하지 않는 상품입니다.');
+    }
+    return products.reduce((sum, product) => sum + product.quantity(), 0);
+  }
+
+  getPromotionProduct(name) {
+    return this.#products.find(product => 
+      product.name() === name && product.hasPromotion()
+    );
+  }
+
+  getNonPromotionProduct(name) {
+    return this.#products.find(product => 
+      product.name() === name && !product.hasPromotion()
+    );
+  }
 }
 
 export default ProductManager; 

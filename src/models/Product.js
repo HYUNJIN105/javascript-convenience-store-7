@@ -3,25 +3,45 @@ class Product {
   #price;
   #quantity;
   #promotion;
+  #promoStock;
 
-  constructor(name, price, quantity, promotion) {
-    this.validate(name, price, quantity);
+  constructor(name, price, quantity, promotion = null) {
     this.#name = name;
     this.#price = price;
     this.#quantity = quantity;
     this.#promotion = promotion;
+    this.#promoStock = promotion ? quantity : 0;
   }
 
-  validate(name, price, quantity) {
-    if (!name || typeof name !== 'string') {
-      throw new Error('[ERROR] 상품명이 올바르지 않습니다.');
+  toString() {
+    const price = this.#price.toLocaleString();
+    const quantity = this.#quantity === 0 ? '재고 없음' : `${this.#quantity}개`;
+    const promotion = this.#promotion ? ` ${this.#promotion}` : '';
+    
+    return `- ${this.#name} ${price}원 ${quantity}${promotion}`;
+  }
+
+  canDecrease(quantity) {
+    return this.#quantity >= quantity;
+  }
+
+  getAvailablePromoQuantity(quantity) {
+    if (!this.hasPromotion() || !this.#promoStock) return 0;
+    return Math.min(quantity, this.#promoStock);
+  }
+
+  decreaseStock(quantity, promoQuantity = 0) {
+    if (!this.canDecrease(quantity)) {
+      throw new Error('[ERROR] 재고가 부족합니다.');
     }
-    if (!Number.isInteger(price) || price <= 0) {
-      throw new Error('[ERROR] 가격이 올바르지 않습니다.');
+    this.#quantity -= quantity;
+    if (promoQuantity > 0) {
+      this.#promoStock -= promoQuantity;
     }
-    if (!Number.isInteger(quantity) || quantity < 0) {
-      throw new Error('[ERROR] 재고 수량이 올바르지 않습니다.');
-    }
+  }
+
+  quantity() {
+    return this.#quantity;
   }
 
   name() {
@@ -32,34 +52,16 @@ class Product {
     return this.#price;
   }
 
-  quantity() {
-    return this.#quantity;
-  }
-
   promotion() {
     return this.#promotion;
   }
 
-  hasStock() {
-    return this.#quantity > 0;
+  hasPromotion() {
+    return this.#promotion !== null;
   }
 
-  decreaseStock(amount) {
-    if (!this.canDecrease(amount)) {
-      throw new Error('[ERROR] 재고가 부족합니다.');
-    }
-    this.#quantity -= amount;
-  }
-
-  canDecrease(amount) {
-    return this.#quantity >= amount;
-  }
-
-  toString() {
-    const stockInfo = this.hasStock() ? `${this.#quantity}개` : '재고 없음';
-    const promotionInfo = this.#promotion ? ` ${this.#promotion}` : '';
-    
-    return `- ${this.#name} ${this.#price.toLocaleString()}원 ${stockInfo}${promotionInfo}`;
+  promoStock() {
+    return this.#promoStock;
   }
 }
 

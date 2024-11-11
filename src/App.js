@@ -28,7 +28,16 @@ class App {
   }
 
   async start() {
-    await this.retry(() => this.processOrder());
+    while (true) {
+      await this.retry(() => this.processOrder());
+      
+      if (!await this.askForMorePurchase()) {
+        break;
+      }
+      
+      await this.welcome();
+      await this.show();
+    }
   }
 
   async retry(callback) {
@@ -75,6 +84,10 @@ class App {
 
   async error(error) {
     await Console.print(error.message);
+  }
+
+  async askForMorePurchase() {
+    return await InputView.readMorePurchase();
   }
 }
 

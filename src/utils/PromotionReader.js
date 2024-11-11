@@ -17,12 +17,10 @@ class PromotionReader {
       .slice(1);
     
     return filteredLines.map(line => {
-      const [name, buy, get, startDate, endDate] = line.split(',').map(item => item.trim());
+      const [name, buy, get] = line.split(',').map(item => item.trim());
       return { 
         name, 
-        type: `${buy}+${get}`,
-        startDate, 
-        endDate 
+        type: `${buy}+${get}`
       };
     });
   }

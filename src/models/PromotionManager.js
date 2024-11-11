@@ -13,11 +13,8 @@ class PromotionManager {
 
   init() {
     const rawPromotions = PromotionReader.read();
-    rawPromotions.forEach(({ name, type, startDate, endDate }) => {
-      this.#promotions.set(
-        name,
-        new Promotion(type, startDate, endDate)
-      );
+    rawPromotions.forEach(({ name, type }) => {
+      this.#promotions.set(name, new Promotion(type));
     });
   }
 
@@ -27,8 +24,18 @@ class PromotionManager {
   }
 
   hasActive(productName) {
-    const promotion = this.get(productName);
-    return promotion ? promotion.isActive() : false;
+    const product = this.#productManager.find(productName);
+    return product && product.promotion() && product.promotion().includes('2+1');
+  }
+
+  isMDRecommended(productName) {
+    const product = this.#productManager.find(productName);
+    return product && product.promotion() === 'MD추천상품';
+  }
+
+  isFlashSale(productName) {
+    const product = this.#productManager.find(productName);
+    return product && product.promotion() === '반짝할인';
   }
 
   calculateFree(productName, quantity) {
